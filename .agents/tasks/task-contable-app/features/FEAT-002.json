@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Frontend application: Complete React+TypeScript+Vite frontend with responsive UI, authentication flows, dashboard, client management, service/payment modules, reports with charts, and Excel export. Mobile-first design using Tailwind CSS and shadcn/ui components.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Initialize frontend/ with Vite + React + TypeScript template: npm create vite@latest frontend -- --template react-ts",
     "Install and configure Tailwind CSS 3, PostCSS, autoprefixer in frontend/",
@@ -53,5 +53,5 @@
     "cd /projects/sandbox/contable/frontend && npx tsc --noEmit"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Zod v4 was installed by default (npm latest) but is incompatible with @hookform/resolvers z.coerce API. Downgraded to zod@3 (3.25.76) for full compatibility. TypeScript 5.8 deprecates baseUrl in tsconfig - removed it and relied on paths alone which works with the bundler module resolution. Vite v8 and tsc-b work correctly with the final config. tailwindcss-animate required as a dependency for shadcn/ui animation classes."
 }
