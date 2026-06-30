@@ -17,17 +17,9 @@ from app.schemas.payment import (
     PaymentProofResponse,
 )
 from app.dependencies import get_current_user, require_admin
-from app.middleware.audit import log_audit
+from app.middleware.audit import log_audit, get_client_ip
 
 router = APIRouter(prefix="/payments", tags=["payments"])
-
-
-def _get_client_ip(request: Request) -> str:
-    """Extract client IP from request, considering forwarded headers."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
 
 
 def _build_proof_response(proof: PaymentProof) -> dict:
@@ -35,7 +27,7 @@ def _build_proof_response(proof: PaymentProof) -> dict:
     return {
         "id": proof.id,
         "payment_id": proof.payment_id,
-        "download_url": f"/api/payments/proofs/{proof.id}/download",
+        "download_url": f"/payments/proofs/{proof.id}/download",
         "file_type": proof.file_type,
         "uploaded_at": proof.uploaded_at,
         "uploaded_by": proof.uploaded_by,
@@ -83,7 +75,7 @@ async def create_payment(
     await log_audit(
         db, admin.id, "create", "payment", payment.id,
         new_values=data.model_dump(mode="json"),
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return payment
 
@@ -110,7 +102,7 @@ async def update_payment(
     await log_audit(
         db, admin.id, "update", "payment", payment.id,
         new_values=update_data,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return payment
 
@@ -132,7 +124,7 @@ async def delete_payment(
 
     await log_audit(
         db, admin.id, "delete", "payment", payment_id,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return payment
 
@@ -185,7 +177,7 @@ async def upload_payment_proof(
     await log_audit(
         db, current_user.id, "create", "payment_proof", proof.id,
         new_values={"payment_id": payment_id, "filename": filename},
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return _build_proof_response(proof)
 

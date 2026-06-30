@@ -15,17 +15,9 @@ from app.schemas.service import (
     ClientServiceResponse,
 )
 from app.dependencies import get_current_user, require_admin
-from app.middleware.audit import log_audit
+from app.middleware.audit import log_audit, get_client_ip
 
 router = APIRouter(prefix="/services", tags=["services"])
-
-
-def _get_client_ip(request: Request) -> str:
-    """Extract client IP from request, considering forwarded headers."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
 
 
 @router.get("/", response_model=List[ServiceResponse])
@@ -65,7 +57,7 @@ async def create_service(
     await log_audit(
         db, admin.id, "create", "service", service.id,
         new_values=data.model_dump(),
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return service
 
@@ -92,7 +84,7 @@ async def update_service(
     await log_audit(
         db, admin.id, "update", "service", service.id,
         new_values=update_data,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return service
 
@@ -114,7 +106,7 @@ async def delete_service(
 
     await log_audit(
         db, admin.id, "delete", "service", service.id,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return service
 
@@ -147,7 +139,7 @@ async def create_client_service(
     await log_audit(
         db, admin.id, "create", "client_service", cs.id,
         new_values=data.model_dump(mode="json"),
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return cs
 
@@ -174,6 +166,6 @@ async def update_client_service(
     await log_audit(
         db, admin.id, "update", "client_service", cs.id,
         new_values=update_data,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return cs

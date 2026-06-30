@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-005",
+  "type": "fix",
+  "description": "Fix double /api prefix on proof download URLs and extract duplicated _get_client_ip utility to shared module.",
+  "status": "in_progress",
+  "steps": [
+    "Change _build_proof_response in payments.py to return download_url without /api prefix",
+    "Update test assertion in test_payments.py to expect URL without /api prefix",
+    "Extract _get_client_ip to backend/app/middleware/audit.py",
+    "Import _get_client_ip from middleware/audit.py in clients.py, services.py, and payments.py, removing local definitions"
+  ],
+  "acceptance_criteria": [
+    "download_url returned by _build_proof_response is /payments/proofs/{id}/download (no /api prefix)",
+    "_get_client_ip is defined once in middleware/audit.py",
+    "All three router files import _get_client_ip from middleware/audit.py",
+    "All backend tests pass",
+    "Frontend builds without errors"
+  ],
+  "verification": [
+    "cd backend && export PYENV_VERSION=3.11.15 && pytest tests/ -v",
+    "cd frontend && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

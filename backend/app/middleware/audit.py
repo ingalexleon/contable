@@ -1,7 +1,16 @@
+from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Any, Dict
 
 from app.models.audit_log import AuditLog
+
+
+def get_client_ip(request: Request) -> str:
+    """Extract client IP from request, considering forwarded headers."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 async def log_audit(

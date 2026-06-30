@@ -8,17 +8,9 @@ from app.models.client import Client, ClientType
 from app.models.user import User
 from app.schemas.client import ClientCreate, ClientUpdate, ClientResponse
 from app.dependencies import get_current_user, require_admin
-from app.middleware.audit import log_audit
+from app.middleware.audit import log_audit, get_client_ip
 
 router = APIRouter(prefix="/clients", tags=["clients"])
-
-
-def _get_client_ip(request: Request) -> str:
-    """Extract client IP from request, considering forwarded headers."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
 
 
 @router.get("/", response_model=List[ClientResponse])
@@ -76,7 +68,7 @@ async def create_client(
     await log_audit(
         db, admin.id, "create", "client", client.id,
         new_values=data.model_dump(),
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return client
 
@@ -109,7 +101,7 @@ async def update_client(
         db, admin.id, "update", "client", client.id,
         old_values=old_values,
         new_values=update_data,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return client
 
@@ -131,6 +123,6 @@ async def delete_client(
 
     await log_audit(
         db, admin.id, "delete", "client", client.id,
-        ip_address=_get_client_ip(request),
+        ip_address=get_client_ip(request),
     )
     return client

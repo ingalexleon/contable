@@ -107,7 +107,7 @@ async def test_upload_payment_proof(client: AsyncClient, admin_token: str):
     assert data["payment_id"] == payment_id
     assert data["file_type"] == "application/pdf"
     assert "download_url" in data
-    assert f"/api/payments/proofs/{data['id']}/download" == data["download_url"]
+    assert f"/payments/proofs/{data['id']}/download" == data["download_url"]
 
 
 @pytest.mark.asyncio
