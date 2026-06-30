@@ -1,0 +1,26 @@
+{
+  "project_type": "Full-stack web application - Python FastAPI backend + React TypeScript frontend",
+  "language": "Python 3.11 (backend), TypeScript (frontend)",
+  "build_system": "npm/vite for frontend, pip/uvicorn for backend, Docker for containerization",
+  "test_framework": "pytest for backend, vitest for frontend",
+  "build_command": "cd backend && pip install -r requirements.txt && cd ../frontend && npm install && npm run build",
+  "test_command": "cd backend && pytest tests/ -v && cd ../frontend && npm run test",
+  "verification_instructions": "1. Install backend deps and run pytest. 2. Install frontend deps and run npm run build. 3. Docker build to validate full stack.",
+  "snapshot_or_generated_files": "Alembic migration files in backend/alembic/versions/ - generated via 'alembic revision --autogenerate'",
+  "setup_instructions": "1. export PYENV_VERSION=3.11.15. 2. cd backend && pip install -r requirements.txt. 3. cd frontend && npm install.",
+  "environment_constraints": "OPEN_INTERNET - full access. Docker available. Python 3.11 via pyenv. Node 22 available. No PostgreSQL server running locally - use SQLite for dev/testing.",
+  "contribution_requirements": "Greenfield project - no existing contribution guidelines. Will establish conventions.",
+  "key_patterns": "Monorepo structure: /backend (FastAPI) + /frontend (React+Vite). REST API with JWT auth. SQLAlchemy ORM with Alembic migrations. Role-based access control. Audit logging on all mutations.",
+  "relevant_files": [
+    "backend/app/main.py",
+    "backend/app/models/",
+    "backend/app/routers/",
+    "backend/app/core/security.py",
+    "backend/app/core/config.py",
+    "frontend/src/App.tsx",
+    "frontend/src/pages/",
+    "frontend/src/components/",
+    "docker-compose.yml"
+  ],
+  "directory_structure": "Monorepo: backend/ (FastAPI app with app/, alembic/, tests/), frontend/ (React+Vite with src/pages, src/components, src/hooks, src/lib), docker-compose.yml at root"
+}

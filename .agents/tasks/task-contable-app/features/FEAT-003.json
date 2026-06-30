@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-003",
+  "type": "chore",
+  "description": "Docker containerization, project documentation, and final integration. Create Docker setup for both services, docker-compose for local development, README with setup instructions, and ensure end-to-end integration works.",
+  "status": "pending",
+  "steps": [
+    "Create backend/Dockerfile - Python 3.11 slim, install requirements, run with uvicorn",
+    "Create frontend/Dockerfile - Node 22 for build stage, nginx for serving static files",
+    "Create docker-compose.yml at project root with services: backend (FastAPI), frontend (React/nginx), db (PostgreSQL 16)",
+    "Create .env.example with all required environment variables documented",
+    "Create README.md with: project description, tech stack, prerequisites, setup instructions (local and Docker), API documentation reference, project structure overview",
+    "Create backend/app/core/init_db.py script to seed initial admin user and default roles on first run",
+    "Create .gitignore for Python, Node, and Docker artifacts",
+    "Ensure backend/alembic/ is properly configured to run migrations on startup or via command",
+    "Verify docker-compose up builds and starts all services correctly"
+  ],
+  "acceptance_criteria": [
+    "docker-compose build completes successfully for all services",
+    "README.md documents complete setup process for local development and Docker",
+    ".env.example lists all required environment variables with descriptions",
+    ".gitignore properly excludes node_modules, __pycache__, .env, uploads/, dist/",
+    "Project structure is clean and well-organized"
+  ],
+  "verification": [
+    "docker build -t contable-backend -f backend/Dockerfile ./backend",
+    "docker build -t contable-frontend -f frontend/Dockerfile ./frontend",
+    "Verify README.md exists and contains setup instructions"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

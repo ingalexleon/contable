@@ -1,0 +1,52 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Backend foundation: Project structure, database models, authentication system, and core API endpoints. This includes the complete FastAPI backend with SQLAlchemy ORM models, JWT authentication, RBAC, audit logging, password recovery flow, and all CRUD endpoints for clients, services, and payments.",
+  "status": "in_progress",
+  "steps": [
+    "Create backend/ directory with FastAPI project structure: app/main.py, app/core/, app/models/, app/routers/, app/schemas/, app/services/, requirements.txt",
+    "Create backend/app/core/config.py with Settings class using pydantic-settings (DATABASE_URL, SECRET_KEY, JWT expiration, SMTP settings, CORS origins)",
+    "Create backend/app/core/security.py with JWT token creation/verification, password hashing with bcrypt (passlib), and token expiry logic",
+    "Create backend/app/core/database.py with SQLAlchemy async engine setup, session factory, and Base declarative model",
+    "Create backend/app/models/user.py with User model (id, email, hashed_password, full_name, role, is_active, created_at, updated_at)",
+    "Create backend/app/models/role.py with Role model (id, name, description, permissions JSON field) - predefined Administrador and Usuario Estandar",
+    "Create backend/app/models/client.py with Client model (id, business_name, contact_name, email, phone, tax_id/RFC, client_type enum [Persona Fisica, Persona Moral, Regimen Simplificado], address, is_active/soft delete, created_at, updated_at, created_by)",
+    "Create backend/app/models/service.py with Service model (id, name, description, default_price, category, is_active) and ClientService model (id, client_id FK, service_id FK, custom_price, is_active, period enum [monthly/annual], start_date)",
+    "Create backend/app/models/payment.py with Payment model (id, client_id FK, amount, payment_date, period_start, period_end, status enum [pending/paid/overdue], notes) and PaymentProof model (id, payment_id FK, file_path, file_type, uploaded_at, uploaded_by)",
+    "Create backend/app/models/audit_log.py with AuditLog model (id, user_id FK, action, entity_type, entity_id, old_values JSON, new_values JSON, timestamp, ip_address)",
+    "Create backend/app/schemas/ with Pydantic schemas for all models (create, update, response variants)",
+    "Create backend/app/routers/auth.py with endpoints: POST /auth/login, POST /auth/register (admin only), POST /auth/forgot-password, POST /auth/reset-password, GET /auth/me, POST /auth/logout",
+    "Create backend/app/routers/users.py with CRUD endpoints for user management (admin only)",
+    "Create backend/app/routers/clients.py with full CRUD (soft delete), filtering by client_type, search by name/RFC",
+    "Create backend/app/routers/services.py with CRUD for service catalog and client-service assignment with custom pricing",
+    "Create backend/app/routers/payments.py with CRUD for payments, file upload for payment proofs (PDF/images), payment status tracking",
+    "Create backend/app/routers/reports.py with endpoints: GET /reports/client/{id} (individual report), GET /reports/general (filtered report), GET /reports/dashboard (stats), GET /reports/export/excel (xlsx export)",
+    "Create backend/app/services/email.py with async email sending via SMTP (aiosmtplib) for password recovery emails with HTML templates",
+    "Create backend/app/services/calculations.py with billing calculation engine - sum active services per client per period (monthly/annual)",
+    "Create backend/app/services/export.py with Excel export using openpyxl - export full DB or specific tables",
+    "Create backend/app/middleware/audit.py with middleware/dependency that logs mutations to audit_log table",
+    "Create backend/app/dependencies.py with get_current_user, require_role(admin/standard) dependencies for route protection",
+    "Create backend/alembic.ini and backend/alembic/ directory with initial migration that creates all tables",
+    "Create backend/app/main.py that ties everything together: CORS, routers, startup event to create default admin user",
+    "Create backend/tests/ with pytest tests for auth endpoints, client CRUD, service pricing, payment management, and RBAC enforcement",
+    "Create backend/requirements.txt with all dependencies: fastapi, uvicorn, sqlalchemy[asyncio], aiosqlite, alembic, pydantic-settings, python-jose[cryptography], passlib[bcrypt], python-multipart, aiosmtplib, openpyxl, jinja2, pytest, httpx, pytest-asyncio"
+  ],
+  "acceptance_criteria": [
+    "Running 'cd backend && pip install -r requirements.txt' installs all dependencies without errors",
+    "Running 'cd backend && pytest tests/ -v' passes all tests",
+    "The API starts successfully with 'cd backend && uvicorn app.main:app'",
+    "POST /auth/login returns a JWT token for valid credentials",
+    "Admin role can create/edit/delete clients; Standard role can only view",
+    "Client services support custom pricing per client",
+    "Payment proof upload stores files and associates them with payments",
+    "Audit log records all create/update/delete operations with user info",
+    "Password recovery endpoint generates a reset token and would send email",
+    "Excel export endpoint generates valid .xlsx files"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/backend && export PYENV_VERSION=3.11.15 && pip install -r requirements.txt",
+    "cd /projects/sandbox/contable/backend && export PYENV_VERSION=3.11.15 && pytest tests/ -v"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
