@@ -73,19 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const formData = new URLSearchParams()
-    formData.append('username', email)
-    formData.append('password', password)
-    const res = await api.post('/auth/login', formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
+    const res = await api.post('/auth/login', { email, password })
     localStorage.setItem('access_token', res.data.access_token)
     const userRes = await api.get('/auth/me')
     setUser(userRes.data)
   }
 
   const isAuthenticated = !!user
-  const isAdmin = user?.role === 'admin' || user?.role === 'administrador'
+  const isAdmin = user?.role_name?.toLowerCase() === 'administrador'
 
   return (
     <AuthContext.Provider

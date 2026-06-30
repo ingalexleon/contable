@@ -64,9 +64,9 @@ export default function Reports() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="persona_fisica">Persona Fisica</SelectItem>
-                  <SelectItem value="persona_moral">Persona Moral</SelectItem>
-                  <SelectItem value="regimen_simplificado">Regimen Simplificado</SelectItem>
+                  <SelectItem value="Persona Fisica">Persona Fisica</SelectItem>
+                  <SelectItem value="Persona Moral">Persona Moral</SelectItem>
+                  <SelectItem value="Regimen Simplificado">Regimen Simplificado</SelectItem>
                 </SelectContent>
               </Select>
             </div>

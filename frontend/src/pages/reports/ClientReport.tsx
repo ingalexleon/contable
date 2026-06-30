@@ -62,7 +62,7 @@ export default function ClientReport() {
                   <span className="font-medium">Tipo:</span> {client?.client_type ?? '-'}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">RFC:</span> {client?.tax_id ?? '-'}
+                  <span className="font-medium">RFC:</span> {client?.rfc ?? '-'}
                 </p>
               </div>
             </CardContent>

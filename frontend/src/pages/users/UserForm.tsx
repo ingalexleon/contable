@@ -18,7 +18,7 @@ const userSchema = z.object({
   email: z.string().email('Correo invalido'),
   full_name: z.string().min(1, 'El nombre es requerido'),
   password: z.string().optional(),
-  role: z.string().min(1, 'El rol es requerido'),
+  role_id: z.coerce.number().min(1, 'El rol es requerido'),
 })
 
 type UserFormData = z.infer<typeof userSchema>
@@ -46,11 +46,11 @@ export default function UserForm({ userId, defaultValues, onSuccess }: UserFormP
       email: defaultValues?.email || '',
       full_name: defaultValues?.full_name || '',
       password: '',
-      role: defaultValues?.role || 'standard',
+      role_id: defaultValues?.role_id || 2,
     },
   })
 
-  const role = watch('role')
+  const roleId = watch('role_id')
 
   const onSubmit = async (data: UserFormData) => {
     try {
@@ -65,7 +65,7 @@ export default function UserForm({ userId, defaultValues, onSuccess }: UserFormP
           email: data.email,
           full_name: data.full_name,
           password: data.password,
-          role: data.role,
+          role_id: data.role_id,
         })
       }
       onSuccess?.()
@@ -98,13 +98,13 @@ export default function UserForm({ userId, defaultValues, onSuccess }: UserFormP
 
       <div className="space-y-2">
         <Label>Rol *</Label>
-        <Select value={role} onValueChange={(val) => setValue('role', val)}>
+        <Select value={String(roleId)} onValueChange={(val) => setValue('role_id', Number(val))}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="admin">Administrador</SelectItem>
-            <SelectItem value="standard">Usuario Estandar</SelectItem>
+            <SelectItem value="1">Administrador</SelectItem>
+            <SelectItem value="2">Usuario Estandar</SelectItem>
           </SelectContent>
         </Select>
       </div>

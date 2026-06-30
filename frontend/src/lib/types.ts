@@ -2,7 +2,8 @@ export interface User {
   id: number
   email: string
   full_name: string
-  role: string
+  role_id: number
+  role_name: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -14,8 +15,8 @@ export interface Client {
   contact_name: string
   email: string
   phone: string
-  tax_id: string
-  client_type: 'persona_fisica' | 'persona_moral' | 'regimen_simplificado'
+  rfc: string
+  client_type: 'Persona Fisica' | 'Persona Moral' | 'Regimen Simplificado'
   address: string
   is_active: boolean
   created_at: string
@@ -59,7 +60,7 @@ export interface Payment {
 export interface PaymentProof {
   id: number
   payment_id: number
-  file_path: string
+  download_url: string
   file_type: string
   uploaded_at: string
   uploaded_by: number
@@ -76,7 +77,7 @@ export interface DashboardStats {
 }
 
 export interface LoginRequest {
-  username: string
+  email: string
   password: string
 }
 

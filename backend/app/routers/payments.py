@@ -1,6 +1,7 @@
 import os
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
@@ -19,6 +20,26 @@ from app.dependencies import get_current_user, require_admin
 from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/payments", tags=["payments"])
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract client IP from request, considering forwarded headers."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _build_proof_response(proof: PaymentProof) -> dict:
+    """Build a PaymentProofResponse dict with download_url instead of file_path."""
+    return {
+        "id": proof.id,
+        "payment_id": proof.payment_id,
+        "download_url": f"/api/payments/proofs/{proof.id}/download",
+        "file_type": proof.file_type,
+        "uploaded_at": proof.uploaded_at,
+        "uploaded_by": proof.uploaded_by,
+    }
 
 
 @router.get("/", response_model=List[PaymentResponse])
@@ -50,6 +71,7 @@ async def get_payment(
 @router.post("/", response_model=PaymentResponse)
 async def create_payment(
     data: PaymentCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -61,6 +83,7 @@ async def create_payment(
     await log_audit(
         db, admin.id, "create", "payment", payment.id,
         new_values=data.model_dump(mode="json"),
+        ip_address=_get_client_ip(request),
     )
     return payment
 
@@ -69,6 +92,7 @@ async def create_payment(
 async def update_payment(
     payment_id: int,
     data: PaymentUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -86,6 +110,7 @@ async def update_payment(
     await log_audit(
         db, admin.id, "update", "payment", payment.id,
         new_values=update_data,
+        ip_address=_get_client_ip(request),
     )
     return payment
 
@@ -93,6 +118,7 @@ async def update_payment(
 @router.delete("/{payment_id}", response_model=PaymentResponse)
 async def delete_payment(
     payment_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -104,13 +130,17 @@ async def delete_payment(
     await db.delete(payment)
     await db.flush()
 
-    await log_audit(db, admin.id, "delete", "payment", payment_id)
+    await log_audit(
+        db, admin.id, "delete", "payment", payment_id,
+        ip_address=_get_client_ip(request),
+    )
     return payment
 
 
 @router.post("/{payment_id}/proof", response_model=PaymentProofResponse)
 async def upload_payment_proof(
     payment_id: int,
+    request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
@@ -154,9 +184,10 @@ async def upload_payment_proof(
 
     await log_audit(
         db, current_user.id, "create", "payment_proof", proof.id,
-        new_values={"payment_id": payment_id, "file_path": file_path},
+        new_values={"payment_id": payment_id, "filename": filename},
+        ip_address=_get_client_ip(request),
     )
-    return proof
+    return _build_proof_response(proof)
 
 
 @router.get("/{payment_id}/proofs", response_model=List[PaymentProofResponse])
@@ -168,4 +199,30 @@ async def list_payment_proofs(
     result = await db.execute(
         select(PaymentProof).where(PaymentProof.payment_id == payment_id)
     )
-    return result.scalars().all()
+    proofs = result.scalars().all()
+    return [_build_proof_response(proof) for proof in proofs]
+
+
+@router.get("/proofs/{proof_id}/download")
+async def download_payment_proof(
+    proof_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Download a payment proof file by its ID."""
+    result = await db.execute(
+        select(PaymentProof).where(PaymentProof.id == proof_id)
+    )
+    proof = result.scalar_one_or_none()
+    if not proof:
+        raise HTTPException(status_code=404, detail="Payment proof not found")
+
+    if not os.path.exists(proof.file_path):
+        raise HTTPException(status_code=404, detail="File not found on server")
+
+    filename = os.path.basename(proof.file_path)
+    return FileResponse(
+        path=proof.file_path,
+        media_type=proof.file_type or "application/octet-stream",
+        filename=filename,
+    )

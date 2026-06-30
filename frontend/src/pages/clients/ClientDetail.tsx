@@ -18,9 +18,9 @@ import {
 import { ArrowLeft, Edit, Plus } from 'lucide-react'
 
 const clientTypeLabels: Record<string, string> = {
-  persona_fisica: 'Persona Fisica',
-  persona_moral: 'Persona Moral',
-  regimen_simplificado: 'Regimen Simplificado',
+  'Persona Fisica': 'Persona Fisica',
+  'Persona Moral': 'Persona Moral',
+  'Regimen Simplificado': 'Regimen Simplificado',
 }
 
 const statusLabels: Record<string, string> = {
@@ -54,7 +54,7 @@ export default function ClientDetail() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">{client.business_name}</h1>
-            <p className="text-muted-foreground">{client.tax_id}</p>
+            <p className="text-muted-foreground">{client.rfc}</p>
           </div>
         </div>
         {isAdmin && (

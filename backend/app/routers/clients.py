@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from typing import List, Optional
@@ -11,6 +11,14 @@ from app.dependencies import get_current_user, require_admin
 from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/clients", tags=["clients"])
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract client IP from request, considering forwarded headers."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 @router.get("/", response_model=List[ClientResponse])
@@ -53,6 +61,7 @@ async def get_client(
 @router.post("/", response_model=ClientResponse)
 async def create_client(
     data: ClientCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -67,6 +76,7 @@ async def create_client(
     await log_audit(
         db, admin.id, "create", "client", client.id,
         new_values=data.model_dump(),
+        ip_address=_get_client_ip(request),
     )
     return client
 
@@ -75,6 +85,7 @@ async def create_client(
 async def update_client(
     client_id: int,
     data: ClientUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -98,6 +109,7 @@ async def update_client(
         db, admin.id, "update", "client", client.id,
         old_values=old_values,
         new_values=update_data,
+        ip_address=_get_client_ip(request),
     )
     return client
 
@@ -105,6 +117,7 @@ async def update_client(
 @router.delete("/{client_id}", response_model=ClientResponse)
 async def delete_client(
     client_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -116,5 +129,8 @@ async def delete_client(
     client.is_active = False  # soft delete
     await db.flush()
 
-    await log_audit(db, admin.id, "delete", "client", client.id)
+    await log_audit(
+        db, admin.id, "delete", "client", client.id,
+        ip_address=_get_client_ip(request),
+    )
     return client

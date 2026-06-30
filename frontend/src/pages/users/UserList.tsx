@@ -75,8 +75,8 @@ export default function UserList() {
                     <TableCell className="font-medium">{user.full_name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={user.role === 'admin' || user.role === 'administrador' ? 'default' : 'secondary'}>
-                        {user.role === 'admin' || user.role === 'administrador' ? 'Administrador' : 'Usuario Estandar'}
+                      <Badge variant={user.role_name?.toLowerCase() === 'administrador' ? 'default' : 'secondary'}>
+                        {user.role_name?.toLowerCase() === 'administrador' ? 'Administrador' : 'Usuario Estandar'}
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
@@ -18,6 +18,14 @@ from app.dependencies import get_current_user, require_admin
 from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/services", tags=["services"])
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract client IP from request, considering forwarded headers."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 @router.get("/", response_model=List[ServiceResponse])
@@ -45,6 +53,7 @@ async def get_service(
 @router.post("/", response_model=ServiceResponse)
 async def create_service(
     data: ServiceCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -56,6 +65,7 @@ async def create_service(
     await log_audit(
         db, admin.id, "create", "service", service.id,
         new_values=data.model_dump(),
+        ip_address=_get_client_ip(request),
     )
     return service
 
@@ -64,6 +74,7 @@ async def create_service(
 async def update_service(
     service_id: int,
     data: ServiceUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -81,6 +92,7 @@ async def update_service(
     await log_audit(
         db, admin.id, "update", "service", service.id,
         new_values=update_data,
+        ip_address=_get_client_ip(request),
     )
     return service
 
@@ -88,6 +100,7 @@ async def update_service(
 @router.delete("/{service_id}", response_model=ServiceResponse)
 async def delete_service(
     service_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -99,7 +112,10 @@ async def delete_service(
     service.is_active = False
     await db.flush()
 
-    await log_audit(db, admin.id, "delete", "service", service.id)
+    await log_audit(
+        db, admin.id, "delete", "service", service.id,
+        ip_address=_get_client_ip(request),
+    )
     return service
 
 
@@ -119,6 +135,7 @@ async def list_client_services(
 @router.post("/client-service", response_model=ClientServiceResponse)
 async def create_client_service(
     data: ClientServiceCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -130,6 +147,7 @@ async def create_client_service(
     await log_audit(
         db, admin.id, "create", "client_service", cs.id,
         new_values=data.model_dump(mode="json"),
+        ip_address=_get_client_ip(request),
     )
     return cs
 
@@ -138,6 +156,7 @@ async def create_client_service(
 async def update_client_service(
     cs_id: int,
     data: ClientServiceUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -155,5 +174,6 @@ async def update_client_service(
     await log_audit(
         db, admin.id, "update", "client_service", cs.id,
         new_values=update_data,
+        ip_address=_get_client_ip(request),
     )
     return cs

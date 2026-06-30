@@ -24,9 +24,9 @@ import {
 import { Plus, Search, Eye } from 'lucide-react'
 
 const clientTypeLabels: Record<string, string> = {
-  persona_fisica: 'Persona Fisica',
-  persona_moral: 'Persona Moral',
-  regimen_simplificado: 'Regimen Simplificado',
+  'Persona Fisica': 'Persona Fisica',
+  'Persona Moral': 'Persona Moral',
+  'Regimen Simplificado': 'Regimen Simplificado',
 }
 
 export default function ClientList() {
@@ -74,9 +74,9 @@ export default function ClientList() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="persona_fisica">Persona Fisica</SelectItem>
-                <SelectItem value="persona_moral">Persona Moral</SelectItem>
-                <SelectItem value="regimen_simplificado">Regimen Simplificado</SelectItem>
+                <SelectItem value="Persona Fisica">Persona Fisica</SelectItem>
+                <SelectItem value="Persona Moral">Persona Moral</SelectItem>
+                <SelectItem value="Regimen Simplificado">Regimen Simplificado</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -121,7 +121,7 @@ export default function ClientList() {
                   clients?.map((client) => (
                     <TableRow key={client.id}>
                       <TableCell className="font-medium">{client.business_name}</TableCell>
-                      <TableCell>{client.tax_id}</TableCell>
+                      <TableCell>{client.rfc}</TableCell>
                       <TableCell>
                         <Badge variant="secondary">
                           {clientTypeLabels[client.client_type] ?? client.client_type}
@@ -163,7 +163,7 @@ export default function ClientList() {
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <p className="font-medium">{client.business_name}</p>
-                      <p className="text-sm text-muted-foreground">{client.tax_id}</p>
+                      <p className="text-sm text-muted-foreground">{client.rfc}</p>
                       <p className="text-sm text-muted-foreground">{client.contact_name}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">

@@ -51,14 +51,14 @@ export default function PaymentProofViewer() {
                   {proof.file_type?.includes('image') ? (
                     <div className="border rounded-md p-2">
                       <img
-                        src={`/api/${proof.file_path}`}
+                        src={`/api${proof.download_url}`}
                         alt="Comprobante"
                         className="w-full h-auto max-h-64 object-contain"
                       />
                     </div>
                   ) : (
                     <a
-                      href={`/api/${proof.file_path}`}
+                      href={`/api${proof.download_url}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

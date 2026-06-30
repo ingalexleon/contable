@@ -22,8 +22,8 @@ const clientSchema = z.object({
   contact_name: z.string().min(1, 'El contacto es requerido'),
   email: z.string().email('Correo invalido').or(z.literal('')),
   phone: z.string().optional(),
-  tax_id: z.string().min(1, 'El RFC es requerido'),
-  client_type: z.enum(['persona_fisica', 'persona_moral', 'regimen_simplificado']),
+  rfc: z.string().min(1, 'El RFC es requerido'),
+  client_type: z.enum(['Persona Fisica', 'Persona Moral', 'Regimen Simplificado']),
   address: z.string().optional(),
 })
 
@@ -46,7 +46,7 @@ export default function ClientForm() {
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      client_type: 'persona_fisica',
+      client_type: 'Persona Fisica',
     },
   })
 
@@ -58,7 +58,7 @@ export default function ClientForm() {
       setValue('contact_name', client.contact_name)
       setValue('email', client.email || '')
       setValue('phone', client.phone || '')
-      setValue('tax_id', client.tax_id)
+      setValue('rfc', client.rfc)
       setValue('client_type', client.client_type)
       setValue('address', client.address || '')
     }
@@ -104,10 +104,10 @@ export default function ClientForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tax_id">RFC *</Label>
-                <Input id="tax_id" {...register('tax_id')} placeholder="XXXX000000XXX" />
-                {errors.tax_id && (
-                  <p className="text-sm text-destructive">{errors.tax_id.message}</p>
+                <Label htmlFor="rfc">RFC *</Label>
+                <Input id="rfc" {...register('rfc')} placeholder="XXXX000000XXX" />
+                {errors.rfc && (
+                  <p className="text-sm text-destructive">{errors.rfc.message}</p>
                 )}
               </div>
 
@@ -121,9 +121,9 @@ export default function ClientForm() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="persona_fisica">Persona Fisica</SelectItem>
-                    <SelectItem value="persona_moral">Persona Moral</SelectItem>
-                    <SelectItem value="regimen_simplificado">Regimen Simplificado</SelectItem>
+                    <SelectItem value="Persona Fisica">Persona Fisica</SelectItem>
+                    <SelectItem value="Persona Moral">Persona Moral</SelectItem>
+                    <SelectItem value="Regimen Simplificado">Regimen Simplificado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

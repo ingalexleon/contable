@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date, datetime
 from app.models.payment import PaymentStatus
@@ -6,7 +6,7 @@ from app.models.payment import PaymentStatus
 
 class PaymentCreate(BaseModel):
     client_id: int
-    amount: float
+    amount: float = Field(gt=0, description="Payment amount must be greater than zero")
     payment_date: Optional[date] = None
     period_start: Optional[date] = None
     period_end: Optional[date] = None
@@ -15,7 +15,7 @@ class PaymentCreate(BaseModel):
 
 
 class PaymentUpdate(BaseModel):
-    amount: Optional[float] = None
+    amount: Optional[float] = Field(default=None, gt=0, description="Payment amount must be greater than zero")
     payment_date: Optional[date] = None
     period_start: Optional[date] = None
     period_end: Optional[date] = None
@@ -41,7 +41,7 @@ class PaymentResponse(BaseModel):
 class PaymentProofResponse(BaseModel):
     id: int
     payment_id: int
-    file_path: str
+    download_url: str
     file_type: Optional[str] = None
     uploaded_at: datetime
     uploaded_by: Optional[int] = None

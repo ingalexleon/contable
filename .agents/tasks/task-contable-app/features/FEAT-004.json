@@ -1,0 +1,34 @@
+{
+  "id": "FEAT-004",
+  "type": "fix",
+  "description": "Fix critical integration bugs and security issues identified in semantic review: login content-type mismatch, admin role detection, client type enum mismatch, tax_id vs rfc, file download endpoint, payment amount validation, and audit log IP capture.",
+  "status": "in_progress",
+  "steps": [
+    "Fix frontend login to send JSON with email field instead of form-encoded with username field",
+    "Fix frontend admin role detection to use role_name from backend response",
+    "Fix client type enum mismatch - align frontend values with backend enum",
+    "Fix frontend to send rfc instead of tax_id for client operations",
+    "Add file download endpoint for payment proofs (GET /api/payments/proofs/{proof_id}/download)",
+    "Replace raw file_path in PaymentProofResponse with download_url",
+    "Add Field(gt=0) constraint on payment amount in PaymentCreate schema",
+    "Add ip_address parameter passing in audit log calls via Request dependency"
+  ],
+  "acceptance_criteria": [
+    "Frontend login sends JSON body with email and password fields",
+    "Frontend correctly identifies admin users via role_name field",
+    "Frontend sends correct client_type enum values matching backend",
+    "Frontend sends rfc field for client tax identifier",
+    "File download endpoint exists and serves files with auth check",
+    "PaymentProofResponse returns download_url instead of raw file_path",
+    "Payment amount rejects negative or zero values",
+    "Audit log captures client IP address",
+    "All backend tests pass",
+    "Frontend builds without errors"
+  ],
+  "verification": [
+    "cd backend && export PYENV_VERSION=3.11.15 && pytest tests/ -v",
+    "cd frontend && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}
