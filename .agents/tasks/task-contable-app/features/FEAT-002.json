@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Frontend application: Complete React+TypeScript+Vite frontend with responsive UI, authentication flows, dashboard, client management, service/payment modules, reports with charts, and Excel export. Mobile-first design using Tailwind CSS and shadcn/ui components.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Initialize frontend/ with Vite + React + TypeScript template: npm create vite@latest frontend -- --template react-ts",
     "Install and configure Tailwind CSS 3, PostCSS, autoprefixer in frontend/",
