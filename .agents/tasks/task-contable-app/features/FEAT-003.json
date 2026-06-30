@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "chore",
   "description": "Docker containerization, project documentation, and final integration. Create Docker setup for both services, docker-compose for local development, README with setup instructions, and ensure end-to-end integration works.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create backend/Dockerfile - Python 3.11 slim, install requirements, run with uvicorn",
     "Create frontend/Dockerfile - Node 22 for build stage, nginx for serving static files",
@@ -27,5 +27,5 @@
     "Verify README.md exists and contains setup instructions"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Both Docker images build successfully (contable-backend, contable-frontend). All 26 backend tests pass. The init_db logic was extracted from main.py into a dedicated init_db.py module. Alembic env.py updated to support DATABASE_URL env var override. Frontend uses npm install (no lock file existed previously)."
 }
