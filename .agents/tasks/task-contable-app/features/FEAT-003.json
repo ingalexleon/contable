@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "chore",
   "description": "Docker containerization, project documentation, and final integration. Create Docker setup for both services, docker-compose for local development, README with setup instructions, and ensure end-to-end integration works.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create backend/Dockerfile - Python 3.11 slim, install requirements, run with uvicorn",
     "Create frontend/Dockerfile - Node 22 for build stage, nginx for serving static files",

@@ -18,6 +18,8 @@ ENV/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
 # Database
 *.db
@@ -27,12 +29,24 @@ ENV/
 
 # Uploads
 backend/uploads/
+uploads/
 
 # Test/cache
 .pytest_cache/
 .coverage
 htmlcov/
+.mypy_cache/
 
 # Node
 node_modules/
 frontend/dist/
+
+# Docker
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
