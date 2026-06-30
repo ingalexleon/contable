@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Backend foundation: Project structure, database models, authentication system, and core API endpoints. This includes the complete FastAPI backend with SQLAlchemy ORM models, JWT authentication, RBAC, audit logging, password recovery flow, and all CRUD endpoints for clients, services, and payments.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create backend/ directory with FastAPI project structure: app/main.py, app/core/, app/models/, app/routers/, app/schemas/, app/services/, requirements.txt",
     "Create backend/app/core/config.py with Settings class using pydantic-settings (DATABASE_URL, SECRET_KEY, JWT expiration, SMTP settings, CORS origins)",
@@ -48,5 +48,5 @@
     "cd /projects/sandbox/contable/backend && export PYENV_VERSION=3.11.15 && pytest tests/ -v"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "bcrypt 5.x is incompatible with passlib 1.7.4 due to breaking changes in the bcrypt API. Pinned bcrypt==4.0.1 to resolve. Also added email-validator as a required dependency for pydantic EmailStr fields. Used SettingsConfigDict instead of deprecated class-based Config for pydantic-settings."
 }
