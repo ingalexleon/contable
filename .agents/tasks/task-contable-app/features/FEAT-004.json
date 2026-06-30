@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "fix",
   "description": "Fix critical integration bugs and security issues identified in semantic review: login content-type mismatch, admin role detection, client type enum mismatch, tax_id vs rfc, file download endpoint, payment amount validation, and audit log IP capture.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Fix frontend login to send JSON with email field instead of form-encoded with username field",
     "Fix frontend admin role detection to use role_name from backend response",
@@ -30,5 +30,5 @@
     "cd frontend && npm run build"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 26 backend tests pass. Frontend builds with zero TypeScript errors. The download endpoint uses FileResponse for streaming. The PaymentProofResponse now returns a download_url field constructed from the proof ID. The UserForm was also updated to use role_id (numeric) instead of role (string) to match the backend UserCreate schema. The clientTypeLabels maps in ClientList and ClientDetail were updated to match the new enum values."
 }
