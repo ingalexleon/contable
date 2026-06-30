@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "fix",
   "description": "Fix double /api prefix on proof download URLs and extract duplicated _get_client_ip utility to shared module.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Change _build_proof_response in payments.py to return download_url without /api prefix",
     "Update test assertion in test_payments.py to expect URL without /api prefix",
@@ -21,5 +21,5 @@
     "cd frontend && npm run build"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 26 backend tests pass. Frontend builds cleanly. Renamed function from _get_client_ip to get_client_ip (public) when moving to middleware/audit.py since it is now a shared utility."
 }
