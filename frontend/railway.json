@@ -1,9 +1,10 @@
 {
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "buildCommand": "npm install && npm run build",
+    "watchPatterns": ["src/**", "package.json", "vite.config.ts"]
   },
   "deploy": {
+    "startCommand": "npx serve dist -s -p $PORT",
     "restartPolicyType": "ON_FAILURE"
   }
 }
