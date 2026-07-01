@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Adapt frontend for Railway deployment: configurable API URL via VITE_API_URL, Railway-specific nginx config without proxy_pass, updated Dockerfile for Railway, and railway.json",
+  "status": "pending",
+  "steps": [
+    "1. Edit frontend/src/lib/api.ts: Change baseURL from hardcoded '/api' to 'import.meta.env.VITE_API_URL || \"/api\"'. This allows Railway to set VITE_API_URL at build time to point to the backend service URL.",
+    "2. Create frontend/nginx.railway.conf: A Railway-specific nginx config that does NOT have the proxy_pass /api/ block. It should: listen on port 80, serve static files from /usr/share/nginx/html, have SPA fallback (try_files $uri $uri/ /index.html), and cache static assets.",
+    "3. Update frontend/Dockerfile: Add a build ARG for VITE_API_URL so Railway can pass it at build time. In the build stage, set ENV VITE_API_URL from the ARG. For the production stage, use nginx.railway.conf instead of nginx.conf (or make it configurable). Since the local docker-compose still needs the proxy nginx.conf, create a Dockerfile.railway that uses nginx.railway.conf, OR modify the existing Dockerfile to accept a build arg for which nginx conf to use.",
+    "4. Create frontend/railway.json with Railway service configuration: specify how to build (Docker), pass VITE_API_URL as build arg.",
+    "5. Verify: run 'cd /projects/sandbox/contable/frontend && npm install && npm run build' to confirm the frontend compiles without errors."
+  ],
+  "acceptance_criteria": [
+    "frontend/src/lib/api.ts uses import.meta.env.VITE_API_URL || '/api' as baseURL",
+    "frontend/nginx.railway.conf exists with SPA routing but NO proxy_pass to backend",
+    "frontend/Dockerfile supports VITE_API_URL build arg",
+    "frontend/railway.json exists with proper Railway config",
+    "Frontend builds without TypeScript or Vite errors"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/frontend && npm install && npm run build",
+    "grep -q 'VITE_API_URL' /projects/sandbox/contable/frontend/src/lib/api.ts",
+    "test -f /projects/sandbox/contable/frontend/nginx.railway.conf && ! grep -q 'proxy_pass' /projects/sandbox/contable/frontend/nginx.railway.conf"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

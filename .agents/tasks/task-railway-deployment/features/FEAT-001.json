@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Adapt backend for Railway deployment: configurable PORT, CORS for Railway domains, Dockerfile using $PORT, and railway.json config",
+  "status": "in_progress",
+  "steps": [
+    "1. Edit backend/app/core/config.py: Add a PORT field (int, default 8000) that reads from env var PORT. Add a CORS pattern for Railway: update CORS_ORIGINS default to include 'http://localhost:5173', 'http://localhost:3000', and add support for Railway domains. Add a method or property that dynamically checks if an origin matches *.up.railway.app.",
+    "2. Edit backend/app/main.py: Update CORS middleware to use allow_origin_regex that matches *.up.railway.app in addition to the explicit CORS_ORIGINS list. This way any Railway subdomain is allowed.",
+    "3. Edit backend/Dockerfile: Change the CMD to use shell form so $PORT is expanded at runtime: CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT. Set ENV PORT=8000 as default.",
+    "4. Create backend/railway.json with Railway service configuration: specify build command (pip install), start command (using $PORT), and any needed Railway settings.",
+    "5. Verify: run 'cd /projects/sandbox/contable/backend && pip install -r requirements.txt && python -c \"from app.main import app; print(app.title)\"' to confirm the app loads without import errors."
+  ],
+  "acceptance_criteria": [
+    "backend/app/core/config.py has PORT: int = 8000 field",
+    "backend/app/main.py CORS middleware allows *.up.railway.app origins via allow_origin_regex",
+    "backend/Dockerfile CMD uses $PORT environment variable",
+    "backend/railway.json exists with proper Railway config",
+    "Backend app imports without errors"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/backend && pip install -r requirements.txt && python -c \"from app.main import app; print(app.title)\"",
+    "grep -q 'PORT' /projects/sandbox/contable/backend/app/core/config.py",
+    "grep -q 'railway' /projects/sandbox/contable/backend/app/main.py || grep -q 'allow_origin_regex' /projects/sandbox/contable/backend/app/main.py"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

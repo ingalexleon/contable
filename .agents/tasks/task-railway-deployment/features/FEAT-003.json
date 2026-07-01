@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-003",
+  "type": "chore",
+  "description": "Final verification and commit all Railway deployment changes",
+  "status": "pending",
+  "steps": [
+    "1. Run the backend tests: cd /projects/sandbox/contable/backend && pytest tests/ -v. Fix any failures caused by the changes.",
+    "2. Run the frontend build: cd /projects/sandbox/contable/frontend && npm run build. Confirm no errors.",
+    "3. Git add all new and modified files and commit with message 'feat: adapt project for Railway deployment as separate services'.",
+    "4. Confirm git status is clean after commit."
+  ],
+  "acceptance_criteria": [
+    "Backend tests pass (or if they require a running DB, they fail only due to DB connection, not import/config errors)",
+    "Frontend builds successfully",
+    "All changes are committed to feature/sistema-contable branch",
+    "Git working tree is clean"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable && git log --oneline -1",
+    "cd /projects/sandbox/contable && git status"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

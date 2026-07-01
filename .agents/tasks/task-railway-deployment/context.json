@@ -1,0 +1,27 @@
+{
+  "project_type": "Full-stack web app: Python FastAPI backend + React 19 TypeScript frontend",
+  "language": "Python (backend), TypeScript (frontend)",
+  "build_system": "Docker multi-stage builds, pip for Python deps, npm for Node deps",
+  "test_framework": "pytest with pytest-asyncio (backend), no test runner configured for frontend",
+  "build_command": "cd backend && pip install -r requirements.txt (backend); cd frontend && npm install && npm run build (frontend)",
+  "test_command": "cd backend && pytest tests/ -v",
+  "verification_instructions": "1. Backend: pip install deps, run pytest. 2. Frontend: npm install, npm run build (tsc + vite). 3. Docker: docker build for both services.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "Backend: cd backend && pip install -r requirements.txt. Frontend: cd frontend && npm install.",
+  "environment_constraints": "OPEN_INTERNET - full network access. Python 3.11 and Node 22 available.",
+  "contribution_requirements": "Commit to feature/sistema-contable branch",
+  "key_patterns": "Backend uses pydantic-settings for config (env vars), SQLAlchemy async with asyncpg for PostgreSQL, Alembic for migrations. init_db() creates tables and seeds roles/admin on startup. All API routes prefixed with /api. Frontend uses Vite with proxy to localhost:8000 for /api in dev mode. Production frontend uses nginx with proxy_pass to docker backend service.",
+  "relevant_files": [
+    "frontend/src/lib/api.ts",
+    "frontend/Dockerfile",
+    "frontend/nginx.conf",
+    "frontend/vite.config.ts",
+    "backend/app/core/config.py",
+    "backend/app/main.py",
+    "backend/Dockerfile",
+    "docker-compose.yml",
+    "backend/alembic.ini",
+    "backend/alembic/env.py"
+  ],
+  "directory_structure": "Root: docker-compose.yml, README.md. backend/: FastAPI app in app/, alembic/ for migrations, tests/, Dockerfile. frontend/: React+Vite app in src/, Dockerfile, nginx.conf, vite.config.ts."
+}

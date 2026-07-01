@@ -1,0 +1,7 @@
+{
+  "task_id": "task-railway-deployment",
+  "task_description": "Adapt the contable project for Railway deployment as separate backend and frontend services. Backend needs configurable PORT, CORS for Railway domains. Frontend needs configurable API URL, Railway-specific nginx config without proxy_pass.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}
