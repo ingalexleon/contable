@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///./contable.db"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway"
 
     # JWT
     SECRET_KEY: str = "dev-secret-key-change-in-production"

@@ -1,17 +1,24 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, extract
 from typing import Optional
+from datetime import datetime, date
+from collections import defaultdict
 
 from app.core.database import get_db
-from app.models.client import Client
+from app.models.client import Client, ClientType
 from app.models.payment import Payment, PaymentStatus
 from app.models.service import ClientService, Service
 from app.models.user import User
 from app.dependencies import get_current_user
 from app.services.calculations import calculate_client_billing
-from app.services.export import export_clients_to_excel, export_payments_to_excel
+from app.services.export import (
+    export_clients_to_excel,
+    export_payments_to_excel,
+    export_services_to_excel,
+    export_all_to_excel,
+)
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -38,6 +45,15 @@ async def client_report(
     total_paid = sum(p.amount for p in payments if p.status == PaymentStatus.PAID)
     total_pending = sum(p.amount for p in payments if p.status == PaymentStatus.PENDING)
 
+    # Count active services for this client
+    active_services_result = await db.execute(
+        select(func.count(ClientService.id)).where(
+            ClientService.client_id == client_id,
+            ClientService.is_active == True,
+        )
+    )
+    active_services = active_services_result.scalar() or 0
+
     return {
         "client": {
             "id": client.id,
@@ -51,6 +67,10 @@ async def client_report(
             "total_pending": total_pending,
             "total_payments": len(payments),
         },
+        # Flat fields expected by the frontend
+        "total_paid": total_paid,
+        "total_pending": total_pending,
+        "active_services": active_services,
     }
 
 
@@ -63,7 +83,13 @@ async def general_report(
     clients_count = await db.execute(
         select(func.count(Client.id)).where(Client.is_active == True)
     )
-    total_clients = clients_count.scalar() or 0
+    active_clients = clients_count.scalar() or 0
+
+    # Count active services
+    active_services_result = await db.execute(
+        select(func.count(ClientService.id)).where(ClientService.is_active == True)
+    )
+    active_services = active_services_result.scalar() or 0
 
     payments_result = await db.execute(select(Payment))
     payments = payments_result.scalars().all()
@@ -73,7 +99,9 @@ async def general_report(
     total_overdue = sum(p.amount for p in payments if p.status == PaymentStatus.OVERDUE)
 
     return {
-        "total_clients": total_clients,
+        "total_clients": active_clients,
+        "active_clients": active_clients,
+        "active_services": active_services,
         "total_revenue": total_revenue,
         "total_pending": total_pending,
         "total_overdue": total_overdue,
@@ -87,30 +115,83 @@ async def dashboard_stats(
     current_user: User = Depends(get_current_user),
 ):
     """Dashboard statistics."""
+    # Total clients (active)
     clients_count = await db.execute(
         select(func.count(Client.id)).where(Client.is_active == True)
     )
-    active_clients = clients_count.scalar() or 0
+    total_clients = clients_count.scalar() or 0
 
-    services_count = await db.execute(
-        select(func.count(Service.id)).where(Service.is_active == True)
+    # Active services (client-service assignments that are active)
+    active_services_result = await db.execute(
+        select(func.count(ClientService.id)).where(ClientService.is_active == True)
     )
-    active_services = services_count.scalar() or 0
+    active_services = active_services_result.scalar() or 0
 
+    # Payments
     payments_result = await db.execute(select(Payment))
     payments = payments_result.scalars().all()
 
-    paid_count = sum(1 for p in payments if p.status == PaymentStatus.PAID)
-    pending_count = sum(1 for p in payments if p.status == PaymentStatus.PENDING)
-    overdue_count = sum(1 for p in payments if p.status == PaymentStatus.OVERDUE)
+    # Monthly revenue (sum of all paid payments)
+    monthly_revenue = sum(p.amount for p in payments if p.status == PaymentStatus.PAID)
+
+    # Pending payments count
+    pending_payments = sum(1 for p in payments if p.status == PaymentStatus.PENDING)
+
+    # Monthly revenue chart - aggregate by month
+    month_names = [
+        "", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+        "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+    ]
+    monthly_data = defaultdict(float)
+    for p in payments:
+        if p.status == PaymentStatus.PAID and p.payment_date:
+            key = f"{month_names[p.payment_date.month]} {p.payment_date.year}"
+            monthly_data[key] += p.amount
+
+    monthly_revenue_chart = [
+        {"month": month, "revenue": revenue}
+        for month, revenue in monthly_data.items()
+    ]
+
+    # Client type distribution
+    type_result = await db.execute(
+        select(Client.client_type, func.count(Client.id))
+        .where(Client.is_active == True)
+        .group_by(Client.client_type)
+    )
+    client_type_distribution = [
+        {"type": row[0].value if row[0] else "Sin tipo", "count": row[1]}
+        for row in type_result.all()
+    ]
+
+    # Top services
+    top_services_result = await db.execute(
+        select(Service.name, func.count(ClientService.id))
+        .join(ClientService, ClientService.service_id == Service.id)
+        .where(ClientService.is_active == True)
+        .group_by(Service.name)
+        .order_by(func.count(ClientService.id).desc())
+        .limit(10)
+    )
+    top_services = [
+        {"name": row[0], "count": row[1]}
+        for row in top_services_result.all()
+    ]
 
     return {
-        "active_clients": active_clients,
+        "total_clients": total_clients,
+        "active_clients": total_clients,
         "active_services": active_services,
+        "monthly_revenue": monthly_revenue,
+        "pending_payments": pending_payments,
+        "monthly_revenue_chart": monthly_revenue_chart,
+        "client_type_distribution": client_type_distribution,
+        "top_services": top_services,
+        # Keep backward-compatible keys
         "payments": {
-            "paid": paid_count,
-            "pending": pending_count,
-            "overdue": overdue_count,
+            "paid": sum(1 for p in payments if p.status == PaymentStatus.PAID),
+            "pending": pending_payments,
+            "overdue": sum(1 for p in payments if p.status == PaymentStatus.OVERDUE),
             "total": len(payments),
         },
     }
@@ -126,6 +207,12 @@ async def export_excel(
     if report_type == "payments":
         output = await export_payments_to_excel(db)
         filename = "pagos_reporte.xlsx"
+    elif report_type == "services":
+        output = await export_services_to_excel(db)
+        filename = "servicios_reporte.xlsx"
+    elif report_type == "all":
+        output = await export_all_to_excel(db)
+        filename = "reporte_general.xlsx"
     else:
         output = await export_clients_to_excel(db)
         filename = "clientes_reporte.xlsx"

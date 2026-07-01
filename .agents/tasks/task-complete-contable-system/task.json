@@ -1,0 +1,7 @@
+{
+  "task_id": "task-complete-contable-system",
+  "task_description": "Complete the contable (accounting firm management) system by fixing backend PostgreSQL configuration for Railway, resolving API endpoint mismatches between frontend and backend, enhancing dashboard/reports endpoints to match frontend data expectations, and verifying full application builds and database connectivity.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

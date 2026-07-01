@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix backend dependencies, PostgreSQL configuration, API endpoint mismatches, and enhance reports/dashboard endpoints to match frontend expectations. Also fix the service assignment endpoint URL mismatch and export functionality.",
+  "status": "in_progress",
+  "steps": [
+    "Step 1: Add `asyncpg` to backend/requirements.txt (currently only installed in Dockerfile, not in requirements.txt for local dev/tests).",
+    "Step 2: Update backend/app/core/config.py to set DATABASE_URL default to the Railway PostgreSQL public URL: postgresql+asyncpg://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway. Keep SQLite for tests only.",
+    "Step 3: Update backend/alembic.ini to set the default sqlalchemy.url to the Railway PostgreSQL URL (non-async driver): postgresql://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway",
+    "Step 4: Fix the service assignment endpoint mismatch. The frontend (src/hooks/useServices.ts) calls POST /services/assign but the backend endpoint is POST /services/client-service. Either rename the backend endpoint to /services/assign OR update the frontend hook to call /services/client-service. Choose: rename backend route from /services/client-service to /services/assign to match the frontend (less changes).",
+    "Step 5: Fix the dashboard endpoint (backend/app/routers/reports.py GET /reports/dashboard). The frontend (src/pages/Dashboard.tsx) expects the response to contain: total_clients (int), active_services (int), monthly_revenue (float), pending_payments (int), monthly_revenue_chart (list of {month, revenue}), client_type_distribution (list of {type, count}), top_services (list of {name, count}). The current backend returns different keys (active_clients, payments dict). Update the backend endpoint to return the structure the frontend expects.",
+    "Step 6: Fix the general report endpoint (backend/app/routers/reports.py GET /reports/general). The frontend (src/pages/reports/Reports.tsx) expects: total_revenue, total_payments, active_clients, active_services. Current backend returns total_clients instead of active_clients and lacks active_services. Add the missing fields.",
+    "Step 7: Fix the client report endpoint (backend/app/routers/reports.py GET /reports/client/{client_id}). The frontend (src/pages/reports/ClientReport.tsx) expects: total_paid, total_pending, active_services. The current endpoint returns nested objects. Update to return flat fields matching frontend expectations.",
+    "Step 8: Fix the export endpoint (backend/app/routers/reports.py GET /reports/export/excel). The frontend passes report_type values 'all', 'clients', 'payments', 'services'. Backend currently only handles 'payments' and defaults to 'clients'. Add support for 'services' export and 'all' (multi-sheet export). Update export.py service to add export_services_to_excel function.",
+    "Step 9: Generate the initial Alembic migration for PostgreSQL. Create a migration file in backend/alembic/versions/ that creates all tables (users, roles, clients, services, client_services, payments, payment_proofs, audit_logs). This should use alembic revision --autogenerate or create a manual migration file.",
+    "Step 10: Update backend/app/core/database.py to handle PostgreSQL-specific engine options (pool_size, SSL if needed). Add connect_args for PostgreSQL (remove SQLite-specific settings if any).",
+    "Step 11: Ensure the backend Dockerfile still works - asyncpg is now in requirements.txt so remove the redundant pip install in Dockerfile.",
+    "Step 12: Update .env.example to show the Railway DATABASE_URL as the default production value."
+  ],
+  "acceptance_criteria": [
+    "requirements.txt contains asyncpg",
+    "Backend config defaults to Railway PostgreSQL URL",
+    "Frontend hook /services/assign matches the backend endpoint path",
+    "GET /reports/dashboard returns total_clients, active_services, monthly_revenue, pending_payments, monthly_revenue_chart, client_type_distribution, top_services",
+    "GET /reports/general returns total_revenue, total_payments, active_clients, active_services",
+    "GET /reports/client/{id} returns total_paid, total_pending, active_services as flat fields",
+    "GET /reports/export/excel supports report_type: all, clients, payments, services",
+    "An Alembic migration file exists in backend/alembic/versions/",
+    "Backend tests pass with SQLite (test database still uses SQLite)"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/backend && pip install -r requirements.txt (confirm asyncpg installs)",
+    "cd /projects/sandbox/contable/backend && python -m pytest tests/ -v",
+    "cd /projects/sandbox/contable/backend && python -c \"from app.main import app; print('Import OK')\"",
+    "cd /projects/sandbox/contable/frontend && npm install && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

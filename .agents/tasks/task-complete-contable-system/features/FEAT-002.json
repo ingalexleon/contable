@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Verify full application builds, run the database initialization against Railway PostgreSQL, and ensure all frontend components compile without errors. Final integration verification.",
+  "status": "pending",
+  "steps": [
+    "Step 1: Run the backend application startup (init_db) against the Railway PostgreSQL database to create tables and seed default roles/admin user. Test with: DATABASE_URL=postgresql+asyncpg://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway python -c 'import asyncio; from app.core.init_db import init_db; asyncio.run(init_db())'",
+    "Step 2: Run Alembic migration against Railway PostgreSQL: DATABASE_URL=postgresql+asyncpg://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway alembic upgrade head",
+    "Step 3: Verify the frontend builds cleanly with 'npm run build' from the frontend directory. Fix any TypeScript compilation errors.",
+    "Step 4: Run backend pytest tests to confirm nothing is broken after the changes.",
+    "Step 5: Test that the backend can start and serve /api/health endpoint with the PostgreSQL connection."
+  ],
+  "acceptance_criteria": [
+    "Backend connects to Railway PostgreSQL and creates tables successfully",
+    "Frontend builds without TypeScript errors",
+    "Backend tests pass (using SQLite test DB)",
+    "Backend /api/health endpoint returns 200 OK"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/backend && python -m pytest tests/ -v",
+    "cd /projects/sandbox/contable/frontend && npm run build",
+    "cd /projects/sandbox/contable/backend && timeout 10 uvicorn app.main:app --port 8000 || true"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

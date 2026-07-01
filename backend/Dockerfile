@@ -11,9 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Add asyncpg for PostgreSQL support in production
-RUN pip install --no-cache-dir asyncpg
-
 # Copy application code
 COPY . .
 

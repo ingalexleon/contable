@@ -124,7 +124,7 @@ async def list_client_services(
     return result.scalars().all()
 
 
-@router.post("/client-service", response_model=ClientServiceResponse)
+@router.post("/assign", response_model=ClientServiceResponse)
 async def create_client_service(
     data: ClientServiceCreate,
     request: Request,
@@ -144,7 +144,7 @@ async def create_client_service(
     return cs
 
 
-@router.put("/client-service/{cs_id}", response_model=ClientServiceResponse)
+@router.put("/assign/{cs_id}", response_model=ClientServiceResponse)
 async def update_client_service(
     cs_id: int,
     data: ClientServiceUpdate,

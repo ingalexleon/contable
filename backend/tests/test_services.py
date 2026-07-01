@@ -48,7 +48,7 @@ async def test_custom_pricing(client: AsyncClient, admin_token: str):
 
     # Assign with custom price
     response = await client.post(
-        "/api/services/client-service",
+        "/api/services/assign",
         json={
             "client_id": client_id,
             "service_id": service_id,
