@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10 MB
 
     # Default admin
-    DEFAULT_ADMIN_EMAIL: str = "admin@contable.local"
+    DEFAULT_ADMIN_EMAIL: str = "admin@contable.com"
     DEFAULT_ADMIN_PASSWORD: str = "admin123"
     DEFAULT_ADMIN_NAME: str = "Administrador"
 
