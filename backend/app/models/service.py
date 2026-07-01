@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, Date, UniqueConstraint
 from datetime import datetime
 
 from app.core.database import Base
@@ -23,6 +23,9 @@ class Service(Base):
 
 class ClientService(Base):
     __tablename__ = "client_services"
+    __table_args__ = (
+        UniqueConstraint("client_id", "service_id", name="uq_client_service"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)

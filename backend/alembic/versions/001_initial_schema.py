@@ -106,6 +106,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["client_id"], ["clients.id"]),
         sa.ForeignKeyConstraint(["service_id"], ["services.id"]),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("client_id", "service_id", name="uq_client_service"),
     )
     op.create_index(op.f("ix_client_services_id"), "client_services", ["id"], unique=False)
 

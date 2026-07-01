@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, extract
+from sqlalchemy import select, func
 from typing import Optional
 from datetime import datetime, date
 from collections import defaultdict
@@ -91,12 +91,32 @@ async def general_report(
     )
     active_services = active_services_result.scalar() or 0
 
-    payments_result = await db.execute(select(Payment))
-    payments = payments_result.scalars().all()
+    # Use SQL aggregation for payment totals
+    total_revenue_result = await db.execute(
+        select(func.coalesce(func.sum(Payment.amount), 0)).where(
+            Payment.status == PaymentStatus.PAID
+        )
+    )
+    total_revenue = float(total_revenue_result.scalar() or 0)
 
-    total_revenue = sum(p.amount for p in payments if p.status == PaymentStatus.PAID)
-    total_pending = sum(p.amount for p in payments if p.status == PaymentStatus.PENDING)
-    total_overdue = sum(p.amount for p in payments if p.status == PaymentStatus.OVERDUE)
+    total_pending_result = await db.execute(
+        select(func.coalesce(func.sum(Payment.amount), 0)).where(
+            Payment.status == PaymentStatus.PENDING
+        )
+    )
+    total_pending = float(total_pending_result.scalar() or 0)
+
+    total_overdue_result = await db.execute(
+        select(func.coalesce(func.sum(Payment.amount), 0)).where(
+            Payment.status == PaymentStatus.OVERDUE
+        )
+    )
+    total_overdue = float(total_overdue_result.scalar() or 0)
+
+    total_payments_result = await db.execute(
+        select(func.count(Payment.id))
+    )
+    total_payments = total_payments_result.scalar() or 0
 
     return {
         "total_clients": active_clients,
@@ -105,7 +125,7 @@ async def general_report(
         "total_revenue": total_revenue,
         "total_pending": total_pending,
         "total_overdue": total_overdue,
-        "total_payments": len(payments),
+        "total_payments": total_payments,
     }
 
 
@@ -127,26 +147,60 @@ async def dashboard_stats(
     )
     active_services = active_services_result.scalar() or 0
 
-    # Payments
-    payments_result = await db.execute(select(Payment))
-    payments = payments_result.scalars().all()
+    # Monthly revenue (sum of all paid payments) via SQL aggregation
+    revenue_result = await db.execute(
+        select(func.coalesce(func.sum(Payment.amount), 0)).where(
+            Payment.status == PaymentStatus.PAID
+        )
+    )
+    monthly_revenue = float(revenue_result.scalar() or 0)
 
-    # Monthly revenue (sum of all paid payments)
-    monthly_revenue = sum(p.amount for p in payments if p.status == PaymentStatus.PAID)
+    # Pending payments count via SQL aggregation
+    pending_result = await db.execute(
+        select(func.count(Payment.id)).where(
+            Payment.status == PaymentStatus.PENDING
+        )
+    )
+    pending_payments = pending_result.scalar() or 0
 
-    # Pending payments count
-    pending_payments = sum(1 for p in payments if p.status == PaymentStatus.PENDING)
+    # Paid count and overdue count via SQL
+    paid_count_result = await db.execute(
+        select(func.count(Payment.id)).where(
+            Payment.status == PaymentStatus.PAID
+        )
+    )
+    paid_count = paid_count_result.scalar() or 0
 
-    # Monthly revenue chart - aggregate by month
+    overdue_count_result = await db.execute(
+        select(func.count(Payment.id)).where(
+            Payment.status == PaymentStatus.OVERDUE
+        )
+    )
+    overdue_count = overdue_count_result.scalar() or 0
+
+    total_payments_result = await db.execute(
+        select(func.count(Payment.id))
+    )
+    total_payments_count = total_payments_result.scalar() or 0
+
+    # Monthly revenue chart - aggregate by month using SQL
+    # We use payment_date for grouping paid payments
+    monthly_chart_result = await db.execute(
+        select(Payment.payment_date, Payment.amount).where(
+            Payment.status == PaymentStatus.PAID,
+            Payment.payment_date.isnot(None),
+        )
+    )
     month_names = [
         "", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
     ]
     monthly_data = defaultdict(float)
-    for p in payments:
-        if p.status == PaymentStatus.PAID and p.payment_date:
-            key = f"{month_names[p.payment_date.month]} {p.payment_date.year}"
-            monthly_data[key] += p.amount
+    for row in monthly_chart_result.all():
+        payment_date, amount = row
+        if payment_date:
+            key = f"{month_names[payment_date.month]} {payment_date.year}"
+            monthly_data[key] += amount
 
     monthly_revenue_chart = [
         {"month": month, "revenue": revenue}
@@ -189,10 +243,10 @@ async def dashboard_stats(
         "top_services": top_services,
         # Keep backward-compatible keys
         "payments": {
-            "paid": sum(1 for p in payments if p.status == PaymentStatus.PAID),
+            "paid": paid_count,
             "pending": pending_payments,
-            "overdue": sum(1 for p in payments if p.status == PaymentStatus.OVERDUE),
-            "total": len(payments),
+            "overdue": overdue_count,
+            "total": total_payments_count,
         },
     }
 

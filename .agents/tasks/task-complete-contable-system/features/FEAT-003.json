@@ -1,0 +1,32 @@
+{
+  "id": "FEAT-003",
+  "type": "fix",
+  "description": "Address 5 review issues: remove hardcoded credentials, fix Alembic async driver mismatch, optimize dashboard aggregation, add unique constraint on client_services, remove unused import.",
+  "status": "in_progress",
+  "steps": [
+    "Step 1: Remove Railway password from config.py - default DATABASE_URL to sqlite+aiosqlite:///./contable.db for local dev",
+    "Step 2: Fix alembic.ini - use placeholder URL instead of hardcoded Railway credentials",
+    "Step 3: Fix .env.example - replace hardcoded Railway URL with placeholder",
+    "Step 4: Fix unbounded payment loading in dashboard - use SQL aggregation instead of loading all payments",
+    "Step 5: Add unique constraint on (client_id, service_id) in the Alembic migration for client_services table",
+    "Step 6: Remove unused extract import from reports.py"
+  ],
+  "acceptance_criteria": [
+    "No Railway credentials appear in source-controlled files",
+    "config.py defaults DATABASE_URL to sqlite+aiosqlite:///./contable.db",
+    "alembic.ini uses a placeholder URL",
+    ".env.example uses placeholder credentials",
+    "Dashboard endpoint uses SQL aggregation for revenue/pending calculations",
+    "client_services table has UniqueConstraint on (client_id, service_id)",
+    "No unused extract import in reports.py",
+    "All backend tests pass",
+    "Frontend builds without errors"
+  ],
+  "verification": [
+    "cd /projects/sandbox/contable/backend && python -m pytest tests/ -v",
+    "cd /projects/sandbox/contable/frontend && npm run build",
+    "grep -r 'XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL' . --include='*.py' --include='*.ini' --include='*.example' (should return nothing)"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
