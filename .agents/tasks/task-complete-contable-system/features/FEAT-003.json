@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "fix",
   "description": "Address 5 review issues: remove hardcoded credentials, fix Alembic async driver mismatch, optimize dashboard aggregation, add unique constraint on client_services, remove unused import.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1: Remove Railway password from config.py - default DATABASE_URL to sqlite+aiosqlite:///./contable.db for local dev",
     "Step 2: Fix alembic.ini - use placeholder URL instead of hardcoded Railway credentials",
@@ -28,5 +28,5 @@
     "grep -r 'XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL' . --include='*.py' --include='*.ini' --include='*.example' (should return nothing)"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 28 backend tests pass. Frontend build succeeds. No credentials remain in source-controlled application files. SQL aggregation used for dashboard and general report endpoints. UniqueConstraint added both in the Alembic migration and the SQLAlchemy model. The alembic.ini still uses asyncpg driver in the placeholder URL because env.py has a custom async runner (async_engine_from_config) that works with asyncpg."
 }
