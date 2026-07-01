@@ -149,7 +149,7 @@ export default function ClientForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefono *</Label>
-                <Input id="phone" {...register('phone')} placeholder="10 digitos" />
+                <Input id="phone" maxLength={10} inputMode="numeric" {...register('phone')} placeholder="10 digitos" />
                 {errors.phone && (
                   <p className="text-sm text-destructive">{errors.phone.message}</p>
                 )}
