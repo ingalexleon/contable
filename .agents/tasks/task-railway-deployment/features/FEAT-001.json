@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Adapt backend for Railway deployment: configurable PORT, CORS for Railway domains, Dockerfile using $PORT, and railway.json config",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Edit backend/app/core/config.py: Add a PORT field (int, default 8000) that reads from env var PORT. Add a CORS pattern for Railway: update CORS_ORIGINS default to include 'http://localhost:5173', 'http://localhost:3000', and add support for Railway domains. Add a method or property that dynamically checks if an origin matches *.up.railway.app.",
     "2. Edit backend/app/main.py: Update CORS middleware to use allow_origin_regex that matches *.up.railway.app in addition to the explicit CORS_ORIGINS list. This way any Railway subdomain is allowed.",
@@ -23,5 +23,5 @@
     "grep -q 'railway' /projects/sandbox/contable/backend/app/main.py || grep -q 'allow_origin_regex' /projects/sandbox/contable/backend/app/main.py"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes verified. Backend loads without errors, PORT config reads from env var correctly, CORS regex matches Railway domains. Note: railway.json was created without the schema field due to a tool limitation but this does not affect functionality."
 }

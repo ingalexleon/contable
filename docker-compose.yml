@@ -49,6 +49,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NGINX_CONF: nginx.conf
     restart: unless-stopped
     ports:
       - "80:80"

@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Adapt frontend for Railway deployment: configurable API URL via VITE_API_URL, Railway-specific nginx config without proxy_pass, updated Dockerfile for Railway, and railway.json",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "1. Edit frontend/src/lib/api.ts: Change baseURL from hardcoded '/api' to 'import.meta.env.VITE_API_URL || \"/api\"'. This allows Railway to set VITE_API_URL at build time to point to the backend service URL.",
     "2. Create frontend/nginx.railway.conf: A Railway-specific nginx config that does NOT have the proxy_pass /api/ block. It should: listen on port 80, serve static files from /usr/share/nginx/html, have SPA fallback (try_files $uri $uri/ /index.html), and cache static assets.",
