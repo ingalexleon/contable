@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix backend dependencies, PostgreSQL configuration, API endpoint mismatches, and enhance reports/dashboard endpoints to match frontend expectations. Also fix the service assignment endpoint URL mismatch and export functionality.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1: Add `asyncpg` to backend/requirements.txt (currently only installed in Dockerfile, not in requirements.txt for local dev/tests).",
     "Step 2: Update backend/app/core/config.py to set DATABASE_URL default to the Railway PostgreSQL public URL: postgresql+asyncpg://postgres:XCjmTvSLwAxNkCJfjGEsYEMZeBddjOpL@thomas.proxy.rlwy.net:47626/railway. Keep SQLite for tests only.",
@@ -35,5 +35,5 @@
     "cd /projects/sandbox/contable/frontend && npm install && npm run build"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 28 backend tests pass with SQLite. Frontend build succeeds with no TS errors. The services endpoint was renamed from /client-service to /assign (test updated). Dashboard, general report, and client report endpoints now return both new flat fields and backward-compatible nested fields. Export supports all four report_type values. Python 3.9 is used in the sandbox (not 3.11), but asyncpg 0.29.0 installs fine. pyenv requires python3 command rather than python."
 }
