@@ -27,6 +27,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    # TODO: Tighten this regex in production to match only this project's frontend
+    # subdomain (e.g., r"https://contable-frontend.*\.up\.railway\.app") once the
+    # exact Railway domain is known. Currently allows any Railway-deployed app.
     allow_origin_regex=r"https://.*\.up\.railway\.app",
     allow_credentials=True,
     allow_methods=["*"],

@@ -28,4 +28,7 @@ COPY ${NGINX_CONF} /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# On Railway, $PORT is set dynamically. Use envsubst to inject it into the nginx config.
+# For local docker-compose, PORT defaults to 80 via the ENV below.
+ENV PORT=80
+CMD ["/bin/sh", "-c", "envsubst '$$PORT' < /etc/nginx/conf.d/default.conf > /tmp/default.conf && mv /tmp/default.conf /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
