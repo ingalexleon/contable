@@ -11,7 +11,7 @@ async def send_password_reset_email(email: str, reset_token: str) -> bool:
     Send password reset email via SMTP.
     In development, this logs the token instead of sending.
     """
-    reset_url = f"http://localhost:5173/reset-password?token={reset_token}"
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
 
     subject = "Recuperar contrasena - Contable"
     body = f"""
@@ -50,7 +50,7 @@ async def send_password_reset_email(email: str, reset_token: str) -> bool:
             port=settings.SMTP_PORT,
             username=settings.SMTP_USER or None,
             password=settings.SMTP_PASSWORD or None,
-            use_tls=settings.SMTP_USE_TLS,
+            start_tls=settings.SMTP_USE_TLS,
         )
         return True
     except Exception as e:

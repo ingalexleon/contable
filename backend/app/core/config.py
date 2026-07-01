@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 
+    # Frontend URL (for password reset links)
+    FRONTEND_URL: str = "http://localhost:5173"
+
     # SMTP (for password recovery)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 587

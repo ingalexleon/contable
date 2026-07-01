@@ -48,7 +48,7 @@ export default function PaymentList() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold">Pagos</h1>
+        <h1 className="text-2xl font-bold">Registrar pagos y movimientos</h1>
         <Link to="/pagos/nuevo">
           <Button>
             <Plus className="mr-2 h-4 w-4" />

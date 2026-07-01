@@ -47,6 +47,8 @@ async def test_client_report(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Report Client",
+            "phone": "5555555510",
+            "rfc": "XAXX010101000",
             "client_type": "Persona Fisica",
         },
         headers={"Authorization": f"Bearer {admin_token}"},

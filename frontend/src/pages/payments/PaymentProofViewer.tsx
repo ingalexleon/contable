@@ -2,12 +2,24 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { usePaymentProofs } from '@/hooks/usePayments'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, FileText, Image } from 'lucide-react'
+import { ArrowLeft, FileText, Image, Download, Printer } from 'lucide-react'
+
+const apiBase = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
 
 export default function PaymentProofViewer() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { data: proofs, isLoading } = usePaymentProofs(id || '')
+
+  const handlePrint = (downloadUrl: string) => {
+    const url = `${apiBase}${downloadUrl}`
+    const printWindow = window.open(url, '_blank')
+    if (printWindow) {
+      printWindow.addEventListener('load', () => {
+        printWindow.print()
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -51,14 +63,14 @@ export default function PaymentProofViewer() {
                   {proof.file_type?.includes('image') ? (
                     <div className="border rounded-md p-2">
                       <img
-                        src={`/api${proof.download_url}`}
+                        src={`${apiBase}${proof.download_url}`}
                         alt="Comprobante"
                         className="w-full h-auto max-h-64 object-contain"
                       />
                     </div>
                   ) : (
                     <a
-                      href={`/api${proof.download_url}`}
+                      href={`${apiBase}${proof.download_url}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -68,6 +80,26 @@ export default function PaymentProofViewer() {
                       </Button>
                     </a>
                   )}
+                  <div className="flex gap-2 pt-2">
+                    <a
+                      href={`${apiBase}${proof.download_url}`}
+                      download
+                      className="flex-1"
+                    >
+                      <Button variant="outline" className="w-full">
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar
+                      </Button>
+                    </a>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handlePrint(proof.download_url)}
+                    >
+                      <Printer className="mr-2 h-4 w-4" />
+                      Imprimir
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

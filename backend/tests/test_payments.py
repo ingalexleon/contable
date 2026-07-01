@@ -11,6 +11,8 @@ async def test_create_payment(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Payment Client",
+            "phone": "5555555501",
+            "rfc": "XAXX010101000",
             "client_type": "Persona Fisica",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -43,6 +45,8 @@ async def test_update_payment_status(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Update Payment Client",
+            "phone": "5555555502",
+            "rfc": "UPC010101000",
             "client_type": "Persona Moral",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -78,6 +82,8 @@ async def test_upload_payment_proof(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Proof Client",
+            "phone": "5555555503",
+            "rfc": "XAXX010101000",
             "client_type": "Persona Fisica",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -118,6 +124,8 @@ async def test_list_payment_proofs(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Proofs List Client",
+            "phone": "5555555504",
+            "rfc": "PLC010101000",
             "client_type": "Persona Moral",
         },
         headers={"Authorization": f"Bearer {admin_token}"},

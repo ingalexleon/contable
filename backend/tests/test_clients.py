@@ -12,7 +12,7 @@ async def test_create_client(client: AsyncClient, admin_token: str):
             "contact_name": "Juan Perez",
             "email": "juan@empresa.com",
             "phone": "5551234567",
-            "rfc": "EMP123456789",
+            "rfc": "EMP010101000",
             "client_type": "Persona Moral",
             "address": "Calle Test 123",
         },
@@ -21,7 +21,7 @@ async def test_create_client(client: AsyncClient, admin_token: str):
     assert response.status_code == 200
     data = response.json()
     assert data["business_name"] == "Empresa Test SA"
-    assert data["rfc"] == "EMP123456789"
+    assert data["rfc"] == "EMP010101000"
     assert data["client_type"] == "Persona Moral"
     assert data["is_active"] is True
 
@@ -48,6 +48,8 @@ async def test_list_clients(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Client A",
+            "phone": "5551111111",
+            "rfc": "XAXX010101000",
             "client_type": "Persona Fisica",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -69,7 +71,8 @@ async def test_search_clients(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Empresa Unica",
-            "rfc": "UNI987654321",
+            "phone": "5552222222",
+            "rfc": "UNI010101000",
             "client_type": "Persona Moral",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -92,6 +95,8 @@ async def test_soft_delete_client(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "To Delete",
+            "phone": "5553333333",
+            "rfc": "XAXX010101000",
             "client_type": "Regimen Simplificado",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
@@ -124,6 +129,8 @@ async def test_update_client(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Original Name",
+            "phone": "5554444444",
+            "rfc": "XAXX010101000",
             "client_type": "Persona Fisica",
         },
         headers={"Authorization": f"Bearer {admin_token}"},

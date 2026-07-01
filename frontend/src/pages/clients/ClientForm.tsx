@@ -21,8 +21,11 @@ const clientSchema = z.object({
   business_name: z.string().min(1, 'El nombre es requerido'),
   contact_name: z.string().min(1, 'El contacto es requerido'),
   email: z.string().email('Correo invalido').or(z.literal('')),
-  phone: z.string().optional(),
-  rfc: z.string().min(1, 'El RFC es requerido'),
+  phone: z.string().regex(/^\d{10}$/, 'El telefono debe tener exactamente 10 digitos'),
+  rfc: z.string().regex(
+    /^[A-Z&Ñ]{3,4}\d{6}[A-Z\d]{3}$/i,
+    'El RFC debe tener el formato correcto (ej. XAXX010101000 para persona fisica o XXX010101000 para persona moral)'
+  ),
   client_type: z.enum(['Persona Fisica', 'Persona Moral', 'Regimen Simplificado']),
   address: z.string().optional(),
 })
@@ -145,8 +148,11 @@ export default function ClientForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefono</Label>
-                <Input id="phone" {...register('phone')} />
+                <Label htmlFor="phone">Telefono *</Label>
+                <Input id="phone" {...register('phone')} placeholder="10 digitos" />
+                {errors.phone && (
+                  <p className="text-sm text-destructive">{errors.phone.message}</p>
+                )}
               </div>
             </div>
 

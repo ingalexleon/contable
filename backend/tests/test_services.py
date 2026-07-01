@@ -40,6 +40,8 @@ async def test_custom_pricing(client: AsyncClient, admin_token: str):
         "/api/clients/",
         json={
             "business_name": "Cliente Especial",
+            "phone": "5555555520",
+            "rfc": "CES010101000",
             "client_type": "Persona Moral",
         },
         headers={"Authorization": f"Bearer {admin_token}"},
