@@ -11,17 +11,17 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage - use serve for static files (SPA routing)
+# Production stage
 FROM node:22-alpine
 
 WORKDIR /app
 
-RUN npm install -g serve
+ARG CACHEBUST=2
+RUN npm install -g serve@13
 
 COPY --from=build /app/dist ./dist
 
 ENV PORT=3000
-
 EXPOSE 3000
 
-CMD ["sh", "-c", "serve dist -s -l $PORT"]
+CMD ["sh", "-c", "serve dist -s -p $PORT"]
