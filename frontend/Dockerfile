@@ -24,4 +24,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "serve dist -s -p $PORT"]
+CMD ["sh", "-c", "serve dist -s -l $PORT"]
